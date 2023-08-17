@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Predictor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='background.css') }}">
+</head>
+<body>
+    <div class="area">
+        <ul class="circles">
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+        </ul>
+    </div>
+    <div class="context">
+        <h1>Predictor</h1>
+        <form id="upload-form" enctype="multipart/form-data">
+            <input type="file" id="file-input" name="file" accept=".txt, .pdf, .docx">
+            <br />
+            <button type="button" onclick="uploadFile()">Subir Archivo</button>
+            <div class="loading" id="loading"></div> <!-- Barra de carga -->
+        </form>
+    
+        <div id="response"></div>
+    </div>
+
+    <script>
+        function uploadFile() {
+            const form = document.getElementById('upload-form');
+            const fileInput = document.getElementById('file-input');
+            const responseDiv = document.getElementById('response');
+            const loadingDiv = document.getElementById('loading');
+
+            loadingDiv.style.display = 'block'; // Mostrar barra de carga
+
+            const formData = new FormData(form);
+
+            setTimeout(() => {
+                fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response =>{ 
+                    console.log(response);
+                    return response.json()})
+                .then(data => {
+                    console.log(data);
+                    responseDiv.innerHTML = createTable(data);
+                    loadingDiv.style.display = 'none'; // Ocultar barra de carga al recibir respuesta
+                })
+                .catch(error => {
+                    responseDiv.textContent = 'Hubo un error al subir el archivo.';
+                    loadingDiv.style.display = 'none'; // Ocultar barra de carga en caso de error
+                });
+            }, 7000); // 10 seconds
+        }
+        
+        function createTable(data) {
+            let tableHTML = '<table border="1"><thead><tr>';
+            for (const header of data[0]) {
+                tableHTML += `<th>${header}</th>`;
+            }
+            tableHTML += '</tr></thead><tbody>';
+            
+            for (let i = 1; i < data.length; i++) {
+                tableHTML += '<tr>';
+                for (const cell of data[i]) {
+                    tableHTML += `<td>${cell}</td>`;
+                }
+                tableHTML += '</tr>';
+            }
+            
+            tableHTML += '</tbody></table>';
+            return tableHTML;
+        }
+    </script>
+</body>
+</html>
