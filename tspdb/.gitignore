@@ -1,0 +1,10 @@
+*.pyc
+*#
+*~
+**/experiments
+docs/
+notebook_examples/*.csv*
+notebook_examples/*.zip*
+notebook_example/demo/*.zip*
+notebook_examples/*.txt*
+notebook_examples/__MACOSX
