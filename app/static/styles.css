@@ -55,12 +55,17 @@ table {
     width: 100%;
     border-collapse: collapse;
     margin: 0 auto;
+    /* Agrega estos estilos para centrar verticalmente la tabla */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 th, td {
     padding: 8px;
     border-bottom: 1px solid #ddd;
     text-align: left;
+    background-color: white; /* Hacer que todas las celdas sean blancas */
 }
 
 th {
@@ -71,19 +76,7 @@ tr:hover {
     background-color: #f5f5f5;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-/* Agrega estos estilos a tu archivo CSS */
+/* Estilos para la barra de carga */
 .loading {
     display: none; /* Por defecto, oculta la barra de carga */
     width: 100%;

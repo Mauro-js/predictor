@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='background.css') }}">
 </head>
+
 <body>
     <div class="area">
         <ul class="circles">
@@ -27,7 +29,7 @@
         <form id="upload-form" enctype="multipart/form-data">
             <input type="file" id="file-input" name="file" accept=".txt, .pdf, .docx">
             <br />
-
+            <br />
             <!-- Agregar un select de 1 a 10 -->
             <label for="number-select">K 1 al 10:</label>
             <select id="number-select" name="k">
@@ -42,7 +44,7 @@
                 <option value="9">9</option>
                 <option value="10">10</option>
             </select>
-
+            <br/>
             <button type="button" onclick="uploadFile()">Subir Archivo</button>
             <div class="loading" id="loading"></div> <!-- Barra de carga -->
         </form>
@@ -66,39 +68,43 @@
                     method: 'POST',
                     body: formData
                 })
-                .then(response =>{ 
-                    console.log(response);
-                    return response.json()})
-                .then(data => {
-                    console.log(data);
-                    responseDiv.innerHTML = createTable(data);
-                    loadingDiv.style.display = 'none'; // Ocultar barra de carga al recibir respuesta
-                })
-                .catch(error => {
-                    responseDiv.textContent = 'Hubo un error al subir el archivo.';
-                    loadingDiv.style.display = 'none'; // Ocultar barra de carga en caso de error
-                });
+                    .then(response => {
+                        console.log(response);
+                        return response.json()
+                    })
+                    .then(data => {
+                        console.log(typeof data,Object.keys(data),data);
+                        responseDiv.innerHTML = createTable(data);
+                        loadingDiv.style.display = 'none'; // Ocultar barra de carga al recibir respuesta
+                    })
+                    .catch(error => {
+                        responseDiv.textContent = 'Hubo un error al subir el archivo.';
+                        loadingDiv.style.display = 'none'; // Ocultar barra de carga en caso de error
+                    });
             }, 7000); // 10 seconds
         }
-        
+
         function createTable(data) {
             let tableHTML = '<table border="1"><thead><tr>';
-            for (const header of data[0]) {
-                tableHTML += `<th>${header}</th>`;
-            }
+
             tableHTML += '</tr></thead><tbody>';
-            
-            for (let i = 1; i < data.length; i++) {
+
+            // Mostrar solo la segunda fila como datos
+            data.shift();
+            if (data.length > 1) {
+                const rowData = data;
                 tableHTML += '<tr>';
-                for (const cell of data[i]) {
+                for (const cell of rowData) {
                     tableHTML += `<td>${cell}</td>`;
                 }
                 tableHTML += '</tr>';
             }
-            
+
             tableHTML += '</tbody></table>';
             return tableHTML;
         }
+
     </script>
 </body>
+
 </html>

@@ -21,17 +21,15 @@ def delete_file(filename):
     except Exception as e:
         print("Error al eliminar el archivo:", e)
 
-def read_csv_to_arrays(filename):
-    arrays = []
+def read_csv_to_last_row(filename):
+    last_row = None
 
     with open(filename, 'r') as file:
         csv_reader = csv.reader(file)
         for row in csv_reader:
-            arrays.append(row)
+            last_row = row
 
-    delete_file(filename)
-
-    return arrays
+    return last_row
 
 def perform_predictions_and_update_csv(filename, k):
     # Conexión a la base de datos
@@ -74,7 +72,7 @@ def perform_predictions_and_update_csv(filename, k):
     # Realizar predicciones y actualizar los datos en la base de datos
     for i in range(num_columns):
         col_name = f'col{i+1}'
-        prediction_query = f"SELECT * FROM predict('time_series_data', '{col_name}', 1, 'pindex_{i+1}');"
+        prediction_query = f"SELECT * FROM predict('time_series_data', '{col_name}', 1, 'pindex_{i+1}', c => 98);"
         prediction = pd.read_sql_query(prediction_query, engine)
         update_query = f"UPDATE time_series_data SET {col_name} = {prediction.at[0, 'prediction']} WHERE time_series_id = 1;"
         cursor.execute(update_query)
@@ -94,7 +92,7 @@ def perform_predictions_and_update_csv(filename, k):
 
     delete_file(filename)
 
-    return read_csv_to_arrays(filename + "_predictor.csv")
+    return read_csv_to_last_row(filename + "_predictor.csv")
 
 
 
