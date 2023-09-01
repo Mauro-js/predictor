@@ -33,7 +33,7 @@ def read_csv_to_arrays(filename):
 
     return arrays
 
-def perform_predictions_and_update_csv(filename):
+def perform_predictions_and_update_csv(filename, k):
     # Conexión a la base de datos
     conn = psycopg2.connect(database="postgres", user="postgres", password="1234", host="localhost")
 
@@ -67,7 +67,7 @@ def perform_predictions_and_update_csv(filename):
     # Crear índices predictivos para cada columna
     for i in range(num_columns):
         col_name = f'col{i+1}'
-        create_index_query = f"SELECT create_pindex('time_series_data', 'time_series_id', '{{{col_name}}}', 'pindex_{i+1}', k => 4);"
+        create_index_query = f"SELECT create_pindex('time_series_data', 'time_series_id', '{{{col_name}}}', 'pindex_{i+1}', k => {k});"
         cursor.execute(create_index_query)
         conn.commit()
 
@@ -101,7 +101,7 @@ def perform_predictions_and_update_csv(filename):
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-def convert_xlsx_to_csv(xlsx_filename):
+def convert_xlsx_to_csv(xlsx_filename, k):
     try:
         # Cargar el archivo Excel en un DataFrame
         df = pd.read_excel(xlsx_filename)
@@ -116,7 +116,7 @@ def convert_xlsx_to_csv(xlsx_filename):
 
         print(f"Archivo '{xlsx_filename}' convertido a '{csv_filename}' con éxito.")
 
-        return perform_predictions_and_update_csv(csv_filename)
+        return perform_predictions_and_update_csv(csv_filename, k)
         
        
     except Exception as e:
@@ -133,25 +133,24 @@ def upload_file():
 
     file = request.files['file']
 
-
     if file.filename == '':
         return 'No se seleccionó ningún archivo'
-    
 
     if file and allowed_file(file.filename):
         filename = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
+        
+        # Acceder a la variable "k" desde el formulario
+        k = int(request.form['k'])
+       
 
         import subprocess
-
         # Ejecuta el comando pwd
         result = subprocess.run(["pwd"], capture_output=True, text=True)
         print(result)
 
         file.save(filename)
 
-        
-        return convert_xlsx_to_csv(filename)
-        #return 'Archivo subido, convertido y actualizado con éxito'
+        return convert_xlsx_to_csv(filename, k)
         
     return 'Archivo no permitido'
 
